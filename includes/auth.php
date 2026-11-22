@@ -18,14 +18,78 @@ session_name('GIIASMON');
 session_start();
 
 /**
- * Akun login ada di includes/users.php (tidak ikut di-commit).
- * Salin dari includes/users.example.php untuk instalasi baru.
+ * Akun login disimpan di data/users.json (diblokir dari web, tidak di-commit).
+ * Kalau file belum ada, dibuat otomatis dengan akun default di bawah,
+ * dan pengguna WAJIB mengganti password setelah login pertama.
  */
-$AUTH_USERS = is_file(__DIR__ . '/users.php') ? require __DIR__ . '/users.php' : [];
+const DEFAULT_USERNAME = 'admin';
+const DEFAULT_PASSWORD = 'admin12345';
+const PASSWORD_MIN_LENGTH = 8;
+
+function users_path(): string
+{
+    return data_path('users.json');
+}
+
+function users_load(): array
+{
+    if (!is_file(users_path())) {
+        json_update(users_path(), [], function ($users) {
+            if (!$users) {
+                $users[DEFAULT_USERNAME] = [
+                    'hash'        => password_hash(DEFAULT_PASSWORD, PASSWORD_DEFAULT),
+                    'must_change' => true,
+                ];
+            }
+            return $users;
+        });
+    }
+    return json_read(users_path(), []);
+}
+
+function user_set_password(string $username, string $newPassword): void
+{
+    json_update(users_path(), [], function ($users) use ($username, $newPassword) {
+        $users[$username] = [
+            'hash'        => password_hash($newPassword, PASSWORD_DEFAULT),
+            'must_change' => false,
+            'changed_at'  => date('c'),
+        ];
+        return $users;
+    });
+}
+
+/** Kembalikan pesan error, atau '' kalau password baru boleh dipakai. */
+function validate_new_password(string $username, string $current, string $new, string $confirm): string
+{
+    $users = users_load();
+    $hash = $users[$username]['hash'] ?? '';
+    if (!password_verify($current, $hash)) {
+        return 'Password saat ini salah.';
+    }
+    if (mb_strlen($new) < PASSWORD_MIN_LENGTH) {
+        return 'Password baru minimal ' . PASSWORD_MIN_LENGTH . ' karakter.';
+    }
+    if ($new === DEFAULT_PASSWORD || password_verify($new, $hash)) {
+        return 'Password baru harus berbeda dari password lama/default.';
+    }
+    if (strcasecmp($new, $username) === 0) {
+        return 'Password tidak boleh sama dengan username.';
+    }
+    if ($new !== $confirm) {
+        return 'Konfirmasi password tidak cocok.';
+    }
+    return '';
+}
 
 function is_logged_in(): bool
 {
     return !empty($_SESSION['user']);
+}
+
+function must_change_password(): bool
+{
+    return !empty($_SESSION['must_change']);
 }
 
 function current_user(): string
@@ -49,6 +113,11 @@ function require_login(): void
         header("Location: login.php?redirect={$redirect}");
         exit;
     }
+    // Password default belum diganti -> paksa ke halaman ganti password
+    if (must_change_password() && basename($_SERVER['SCRIPT_NAME']) !== 'change_password.php') {
+        header('Location: change_password.php');
+        exit;
+    }
     csrf_token();
     // Lepas lock file sesi supaya request API paralel dari browser yang
     // sama tidak saling menunggu.
@@ -69,6 +138,9 @@ function require_auth_json(): void
 {
     if (!is_logged_in()) {
         json_response(['status' => 'error', 'code' => 'unauthorized', 'message' => 'Sesi berakhir, silakan login ulang.'], 401);
+    }
+    if (must_change_password()) {
+        json_response(['status' => 'error', 'code' => 'password_change_required', 'message' => 'Ganti password default terlebih dahulu.'], 403);
     }
     // PENTING: tanpa ini semua request ping/traffic dari satu browser
     // diproses satu per satu karena PHP mengunci file sesi.
@@ -126,8 +198,8 @@ function login_register_attempt(string $ip, bool $success): void
 
 function login(string $username, string $password): bool
 {
-    global $AUTH_USERS;
-    $hash = $AUTH_USERS[$username] ?? null;
+    $user = users_load()[$username] ?? null;
+    $hash = $user['hash'] ?? null;
     // Tetap jalankan password_verify walau user tidak ada, supaya waktu
     // respons tidak membocorkan username mana yang valid.
     $ok = password_verify($password, $hash ?? '$2y$10$abcdefghijklmnopqrstuuJ8eS1mF1v4cR7Gk6bQnJbqgFvC3d1zO');
@@ -135,6 +207,7 @@ function login(string $username, string $password): bool
         session_regenerate_id(true);
         $_SESSION['user'] = $username;
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
+        $_SESSION['must_change'] = !empty($user['must_change']);
         return true;
     }
     return false;

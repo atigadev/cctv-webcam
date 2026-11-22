@@ -1,5 +1,4 @@
 # Rahasia & konfigurasi lokal (lihat file *.example)
-includes/users.php
 includes/mikrotik_config.php
 
 # Data runtime (IP internal, nama petugas, riwayat)

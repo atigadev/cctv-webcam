@@ -67,6 +67,7 @@ function topbar(string $active, string $slot = ''): void
         <div class="topbar-right">
             <?= $slot ?>
             <span class="clock" id="clock" aria-label="Waktu sekarang">--:--:--</span>
+            <a class="icon-btn" href="change_password.php" title="Ganti password"><?= icon('key') ?></a>
             <form method="post" action="logout.php" class="logout-form">
                 <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf'] ?? '') ?>">
                 <button type="submit" class="btn btn-ghost btn-sm" title="Keluar (<?= e(current_user()) ?>)">
@@ -107,7 +108,9 @@ function icon_sprite(): void
         'alert'    => '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
         'check'    => '<path d="M20 6 9 17l-5-5"/>',
         'keyboard' => '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M18 13h.01M8 16h8"/>',
-        'refresh'  => '<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/>',
+        'key'      => '<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M17 6l3 3M14.5 8.5l2 2"/>',
+        'lock'     => '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+        'refresh'  =>'<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/>',
     ];
     echo '<svg width="0" height="0" style="position:absolute" aria-hidden="true">';
     foreach ($paths as $id => $d) {

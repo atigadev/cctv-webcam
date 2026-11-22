@@ -45,6 +45,13 @@
             location.href = `login.php?redirect=${back}&expired=1`;
             throw new ApiError('Sesi berakhir.');
         }
+        if (res.status === 403 && res.headers.get('Content-Type')?.includes('json')) {
+            const peek = await res.clone().json().catch(() => ({}));
+            if (peek.code === 'password_change_required') {
+                location.href = 'change_password.php?first=1';
+                throw new ApiError(peek.message);
+            }
+        }
 
         let data;
         try {

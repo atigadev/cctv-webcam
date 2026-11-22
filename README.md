@@ -8,12 +8,18 @@ Dibuat dengan PHP 7.4+ tanpa framework, berjalan di Apache (XAMPP) dengan `.htac
 
 1. Salin folder ini ke `htdocs/`.
 2. Buat file konfigurasi lokal dari contohnya (file aslinya tidak ikut di-commit):
-   - `includes/users.example.php` → `includes/users.php`, lalu isi hash password:
-     `php -r "echo password_hash('PASSWORD_BARU', PASSWORD_DEFAULT);"`
    - `includes/mikrotik_config.example.php` → `includes/mikrotik_config.php`
    - `data/config.example.json` → `data/config.json` (opsional; Hall juga bisa ditambah lewat halaman **Kelola Hall**)
 3. Pastikan folder `data/` bisa ditulis oleh web server.
-4. Buka `http://localhost/<folder>/`.
+4. Buka `http://localhost/<folder>/` dan masuk dengan akun default:
+
+   | Username | Password |
+   | --- | --- |
+   | `admin` | `admin12345` |
+
+   Setelah berhasil masuk, Anda **wajib membuat password baru** sebelum bisa membuka halaman lain. Password disimpan (ter-hash) di `data/users.json`.
+
+   **Lupa password?** Hapus `data/users.json`; akun kembali ke default di atas dan wajib diganti lagi saat login.
 
 Pengaturan interval ping, ambang offline, dan batas percobaan login ada di `includes/settings.php`.
 
