@@ -1,0 +1,17 @@
+# Rahasia & konfigurasi lokal (lihat file *.example)
+includes/users.php
+includes/mikrotik_config.php
+
+# Data runtime (IP internal, nama petugas, riwayat)
+data/*.json
+data/*.lock
+!data/config.example.json
+
+# Arsip & cadangan lokal
+_arsip/
+
+# Gambar lama yang tidak dipakai aplikasi
+ucu.png
+ucu2.png
+jempol.jpg
+B10SIMKM0.jpg

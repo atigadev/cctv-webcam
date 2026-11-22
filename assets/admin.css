@@ -1,0 +1,428 @@
+/* =====================================================
+   GIIAS Monitor - halaman Kelola Hall
+   ===================================================== */
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+}
+
+.page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.page-head h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+}
+
+.page-desc {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.88rem;
+    max-width: 640px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 20px;
+    align-items: start;
+}
+
+.count {
+    color: var(--text-3);
+    font-weight: 600;
+}
+
+.muted {
+    color: var(--text-3);
+}
+
+.icon-lg {
+    width: 36px;
+    height: 36px;
+    color: var(--text-3);
+}
+
+/* ---------- Pencarian ---------- */
+.search {
+    position: relative;
+    width: min(280px, 50%);
+}
+
+.search .icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-3);
+    pointer-events: none;
+}
+
+.search .input {
+    height: 36px;
+    padding-left: 34px;
+}
+
+/* ---------- Tabel ---------- */
+.table-wrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table tbody tr {
+    transition: background .2s;
+}
+
+.table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.table tr.is-editing {
+    background: var(--accent-soft);
+}
+
+.table tr.is-editing td:first-child {
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.table tr.is-flash {
+    animation: flash 1.6s ease-out;
+}
+
+@keyframes flash {
+    0% {
+        background: rgba(34, 197, 94, 0.22);
+    }
+}
+
+.table .empty {
+    text-align: center;
+    color: var(--text-2);
+    padding: 40px 20px;
+}
+
+.table .empty .btn {
+    margin-top: 12px;
+}
+
+.col-order {
+    width: 44px;
+    padding-right: 0 !important;
+}
+
+.col-actions {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.order-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.order-btn {
+    width: 26px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+}
+
+.order-btn .icon {
+    width: 15px;
+    height: 15px;
+}
+
+.order-btn:hover:not(:disabled) {
+    background: var(--surface-3);
+    color: var(--text);
+}
+
+.order-btn:disabled {
+    opacity: .25;
+    cursor: default;
+}
+
+.hall-name {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.hall-url {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.76rem;
+    color: var(--text-3);
+    text-decoration: none;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hall-url:hover {
+    color: var(--text-2);
+    text-decoration: underline;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    font-size: 0.74rem;
+    color: var(--text-2);
+    white-space: nowrap;
+}
+
+.tag b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.row-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.btn-del {
+    width: 32px;
+    height: 32px;
+}
+
+.btn-del:hover {
+    color: #fff;
+    background: var(--bad);
+    border-color: var(--bad);
+}
+
+.btn-del .icon,
+.row-actions .btn .icon {
+    width: 15px;
+    height: 15px;
+}
+
+/* ---------- Form ---------- */
+.form-panel {
+    position: sticky;
+    top: 16px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.form-panel.is-editing {
+    border-color: rgba(230, 0, 0, 0.5);
+    box-shadow: 0 0 0 1px rgba(230, 0, 0, 0.25);
+}
+
+.mode-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: var(--accent);
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+
+.mode-badge[hidden] {
+    display: none;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.req {
+    color: var(--accent);
+}
+
+.ip-fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+.ip-fieldset legend {
+    padding: 0;
+    margin-bottom: 6px;
+}
+
+.ip-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ip-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) 40px;
+    gap: 6px;
+}
+
+.ip-row .icon-btn {
+    width: 40px;
+    height: 40px;
+}
+
+.ip-remove:hover {
+    color: #ff8a8a;
+}
+
+.add-ip {
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+}
+
+.form-actions .btn[hidden] {
+    display: none;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .form-panel {
+        position: static;
+        order: -1;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding: 16px 12px 40px;
+    }
+
+    .page-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .panel-head {
+        flex-wrap: wrap;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+    /* Tabel menjadi kartu */
+    .table thead {
+        display: none;
+    }
+
+    .table,
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        position: relative;
+        padding: 12px 14px 12px 48px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table td {
+        border: 0;
+        padding: 3px 0;
+    }
+
+    .table td.col-order {
+        position: absolute;
+        left: 10px;
+        top: 12px;
+        width: auto;
+    }
+
+    .table td[data-label="Petugas"]::before {
+        content: "Petugas: ";
+        color: var(--text-3);
+    }
+
+    .table td.col-actions {
+        padding-top: 8px;
+    }
+
+    .row-actions {
+        justify-content: flex-start;
+    }
+
+    .hall-url {
+        max-width: 100%;
+    }
+}
+
+/* Item grid jangan melebar mengikuti isi (tabel/input) */
+.layout>* {
+    min-width: 0;
+}

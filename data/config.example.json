@@ -1,0 +1,14 @@
+{
+    "halls": [
+        {
+            "id": 1,
+            "name": "Hall 1",
+            "iframeUrl": "http://192.168.1.50:8090/?viewIndex=0#Live",
+            "ips": [
+                { "label": "Encoder", "ip": "192.168.1.10" },
+                { "label": "Kamera", "ip": "192.168.1.11" }
+            ],
+            "petugas": "Nama Petugas"
+        }
+    ]
+}

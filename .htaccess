@@ -1,0 +1,14 @@
+# GIIAS Monitor - proteksi file
+Options -Indexes
+DirectoryIndex index.php
+
+# Data mentah tidak boleh diakses langsung lewat browser
+<FilesMatch "\.(json|sql|lock|md|log|bak)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "same-origin"
+    Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
