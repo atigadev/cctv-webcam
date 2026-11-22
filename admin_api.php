@@ -55,6 +55,9 @@ function hall_fields(array $input, array $base): array
     if (array_key_exists('ips', $input)) {
         $hall['ips'] = sanitize_ips($input['ips']);
     }
+    if (array_key_exists('peopleCount', $input)) {
+        $hall['peopleCount'] = sanitize_people_count($input['peopleCount']);
+    }
 
     if (($hall['name'] ?? '') === '') {
         throw new ApiError('Nama Hall wajib diisi.');

@@ -426,3 +426,114 @@
 .layout>* {
     min-width: 0;
 }
+
+/* ---------- Hitung orang (AI) ---------- */
+.people-fieldset {
+    border: 0;
+    margin: 0;
+    padding: 12px 0 0;
+    min-width: 0;
+    border-top: 1px solid var(--border);
+}
+
+.people-fieldset legend {
+    padding: 0;
+    margin-bottom: 6px;
+    float: left;
+    width: 100%;
+}
+
+.people-fieldset .check {
+    clear: both;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    margin: 0;
+}
+
+.people-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.people-opts[hidden] {
+    display: none;
+}
+
+.sub-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-3);
+}
+
+.cams-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+}
+
+.cams-row .btn {
+    height: 40px;
+}
+
+.cam-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cam-chips:empty {
+    display: none;
+}
+
+.cam-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.cam-chip .num {
+    color: var(--text-3);
+    font-weight: 700;
+}
+
+.cam-chip:hover {
+    color: var(--text);
+}
+
+.cam-chip.is-on {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--text);
+}
+
+.cam-chip.is-on .num {
+    color: var(--text);
+}
+
+.tag-ai .icon {
+    width: 14px;
+    height: 14px;
+    color: var(--accent);
+}

@@ -5,6 +5,7 @@ require_login();
 
 $summary = '
 <div class="summary" id="summary" aria-live="polite">
+    <a class="pill pill-people" id="sumPeople" href="people.php" title="Total orang terpantau kamera (AI)" hidden>' . icon('users') . '<strong>–</strong><span class="hide-sm">Orang</span></a>
     <span class="pill" id="sumOnline" title="Perangkat online"><span class="dot online"></span><strong>–</strong><span class="hide-sm">Online</span></span>
     <span class="pill" id="sumOffline" title="Perangkat offline"><span class="dot offline"></span><strong>–</strong><span class="hide-sm">Offline</span></span>
 </div>

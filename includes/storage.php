@@ -138,6 +138,23 @@ function clean_text($value, int $max = 120): string
     return mb_substr($value, 0, $max);
 }
 
+/**
+ * Pengaturan hitung orang per Hall: { enabled: bool, cams: "1, 2" }.
+ * cams kosong = semua kamera di DVR Hall tersebut.
+ */
+function sanitize_people_count($value): array
+{
+    $value = is_array($value) ? $value : [];
+    $ids = [];
+    foreach (preg_split('/[\s,;]+/', (string)($value['cams'] ?? ''), -1, PREG_SPLIT_NO_EMPTY) as $part) {
+        $n = (int)$part;
+        if ($n > 0 && $n < 100000 && !in_array($n, $ids, true)) {
+            $ids[] = $n;
+        }
+    }
+    return ['enabled' => !empty($value['enabled']), 'cams' => implode(', ', array_slice($ids, 0, 32))];
+}
+
 function sanitize_ips($ips): array
 {
     if (!is_array($ips)) {

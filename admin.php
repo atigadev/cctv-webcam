@@ -85,6 +85,24 @@ require_login();
                         <div class="field-error" data-for="ips"></div>
                     </fieldset>
 
+                    <fieldset class="field people-fieldset">
+                        <legend class="label">Hitung orang (AI)</legend>
+                        <label class="check">
+                            <input type="checkbox" id="peopleEnabled">
+                            <span>Hitung jumlah orang di kamera Hall ini</span>
+                        </label>
+                        <div class="people-opts" id="peopleOpts" hidden>
+                            <label for="peopleCams" class="sub-label">ID kamera di Agent DVR</label>
+                            <div class="cams-row">
+                                <input class="input num" type="text" id="peopleCams" placeholder="Kosong = semua kamera · mis. 1, 2">
+                                <button type="button" class="btn btn-secondary btn-sm" id="fetchCamsBtn"><?= icon('video') ?>Ambil daftar</button>
+                            </div>
+                            <div class="cam-chips" id="camChips"></div>
+                            <div class="hint">Diambil dari DVR pada URL stream di atas. Klik kamera untuk memilih / batal memilih.</div>
+                            <div class="field-error" data-for="people"></div>
+                        </div>
+                    </fieldset>
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-ghost" id="cancelBtn" hidden>Batal</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn"><?= icon('check') ?><span>Simpan Hall</span></button>

@@ -1,0 +1,13 @@
+{
+    "model": "models/yolo11s_1920.onnx",
+    "interval": 5,
+    "confidence": 0.30,
+    "iou": 0.50,
+    "smoothing": 3,
+    "snapshot_width": 1920,
+    "fetch_timeout": 8,
+    "camera_list_ttl": 60,
+    "history_hours": 24,
+    "threads": 0,
+    "save_snapshots": true
+}

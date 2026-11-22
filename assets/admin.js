@@ -69,10 +69,81 @@
         })).filter(e => e.ip || e.label);
     }
 
+    /* ---------- Hitung orang ---------- */
+
+    const peopleEnabled = $('peopleEnabled');
+    const peopleCams = $('peopleCams');
+    const camChips = $('camChips');
+    const fetchCamsBtn = $('fetchCamsBtn');
+
+    function parseCamIds(text) {
+        return [...new Set(String(text).split(/[\s,;]+/).map(Number).filter(n => Number.isInteger(n) && n > 0))];
+    }
+
+    function syncPeopleOpts() {
+        $('peopleOpts').hidden = !peopleEnabled.checked;
+    }
+
+    function syncChips() {
+        const ids = parseCamIds(peopleCams.value);
+        camChips.querySelectorAll('.cam-chip').forEach(c => {
+            const on = ids.includes(Number(c.dataset.oid));
+            c.classList.toggle('is-on', on);
+            c.setAttribute('aria-pressed', on);
+        });
+    }
+
+    peopleEnabled.addEventListener('change', syncPeopleOpts);
+    peopleCams.addEventListener('input', syncChips);
+
+    camChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('.cam-chip');
+        if (!chip) return;
+        const oid = Number(chip.dataset.oid);
+        let ids = parseCamIds(peopleCams.value);
+        ids = ids.includes(oid) ? ids.filter(n => n !== oid) : [...ids, oid].sort((a, b) => a - b);
+        peopleCams.value = ids.join(', ');
+        syncChips();
+    });
+
+    fetchCamsBtn.addEventListener('click', async () => {
+        const url = urlEl.value.trim();
+        form.querySelector('.field-error[data-for="people"]').textContent = '';
+        if (!isValidUrl(url)) {
+            setError('url', 'Isi URL stream terlebih dahulu.', urlEl);
+            urlEl.focus();
+            return;
+        }
+        fetchCamsBtn.disabled = true;
+        camChips.innerHTML = '<span class="hint">Menghubungi DVR…</span>';
+        try {
+            const data = await api(`people_api.php?action=cameras&url=${encodeURIComponent(url)}`);
+            camChips.innerHTML = data.cameras.length
+                ? data.cameras.map(c => `<button type="button" class="cam-chip" data-oid="${c.oid}" aria-pressed="false"
+                        title="${c.online ? 'Online' : 'Offline'} di DVR"><span class="dot ${c.online ? 'online' : 'offline'}"></span>
+                        <span class="num">${c.oid}</span>${escapeHtml(c.name)}</button>`).join('')
+                : '<span class="hint">DVR tidak punya kamera video.</span>';
+            syncChips();
+        } catch (err) {
+            camChips.innerHTML = '';
+            form.querySelector('.field-error[data-for="people"]').textContent = err.message;
+        } finally {
+            fetchCamsBtn.disabled = false;
+        }
+    });
+
+    function setPeople(pc) {
+        peopleEnabled.checked = !!pc?.enabled;
+        peopleCams.value = pc?.cams || '';
+        camChips.innerHTML = '';
+        syncPeopleOpts();
+    }
+
     /* ---------- Form ---------- */
 
     function formState() {
-        return JSON.stringify([nameEl.value, urlEl.value, petugasEl.value, collectIps().map(e => [e.label, e.ip])]);
+        return JSON.stringify([nameEl.value, urlEl.value, petugasEl.value, collectIps().map(e => [e.label, e.ip]),
+            peopleEnabled.checked, peopleCams.value.trim()]);
     }
 
     function isDirty() {
@@ -94,6 +165,7 @@
         form.reset();
         ipRows.innerHTML = '';
         addIpRow();
+        setPeople(null);
         clearErrors();
         $('formTitle').textContent = 'Tambah Hall Baru';
         $('modeBadge').hidden = true;
@@ -111,6 +183,7 @@
         petugasEl.value = hall.petugas || '';
         ipRows.innerHTML = '';
         (hall.ips?.length ? hall.ips : [{ label: '', ip: '' }]).forEach(e => addIpRow(e.label, e.ip));
+        setPeople(hall.peopleCount);
         clearErrors();
         $('formTitle').textContent = `Edit: ${hall.name}`;
         $('modeBadge').hidden = false;
@@ -160,6 +233,7 @@
             iframeUrl: urlEl.value.trim(),
             petugas: petugasEl.value.trim(),
             ips: ips.filter(x => x.ip).map(({ label, ip }) => ({ label, ip })),
+            peopleCount: { enabled: peopleEnabled.checked, cams: parseCamIds(peopleCams.value).join(', ') },
         };
 
         let ok = true;
@@ -241,6 +315,9 @@
             const ips = (hall.ips || []).map(e =>
                 `<span class="tag"><b>${escapeHtml(e.label || 'IP')}</b><span class="num">${escapeHtml(e.ip)}</span></span>`
             ).join('') || '<span class="muted">Tidak ada</span>';
+            const pc = hall.peopleCount?.enabled
+                ? `<span class="tag tag-ai" title="Hitung orang aktif">${icon('users')}<b>AI</b><span>${hall.peopleCount.cams ? 'kamera ' + escapeHtml(hall.peopleCount.cams) : 'semua kamera'}</span></span>`
+                : '';
             return `
                 <tr data-id="${hall.id}" class="${hall.id === editingId ? 'is-editing' : ''}">
                     <td class="col-order" data-label="Urutan">
@@ -253,7 +330,7 @@
                         <div class="hall-name">${escapeHtml(hall.name)}</div>
                         <a class="hall-url" href="${escapeHtml(hall.iframeUrl)}" target="_blank" rel="noopener noreferrer" title="Buka stream di tab baru">${escapeHtml(hall.iframeUrl)}</a>
                     </td>
-                    <td data-label="Perangkat"><div class="tags">${ips}</div></td>
+                    <td data-label="Perangkat"><div class="tags">${ips}${pc}</div></td>
                     <td data-label="Petugas">${hall.petugas ? escapeHtml(hall.petugas) : '<span class="muted">–</span>'}</td>
                     <td class="col-actions">
                         <div class="row-actions">

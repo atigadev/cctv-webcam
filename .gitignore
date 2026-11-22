@@ -14,3 +14,12 @@ ucu.png
 ucu2.png
 jempol.jpg
 B10SIMKM0.jpg
+
+# People counter (AI) - runtime
+people_counter/.venv/
+people_counter/counter.log*
+people_counter/counter.lock
+people_counter/counter.pid
+people_counter/settings.json
+people_counter/__pycache__/
+data/people/

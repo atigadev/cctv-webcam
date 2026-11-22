@@ -16,7 +16,7 @@
         title: $('viewTitle'), sub: $('viewSub'),
         showAll: $('showAllBtn'), prev: $('prevBtn'), next: $('nextBtn'),
         rotate: $('rotateBtn'), list: $('listBtn'), fullscreen: $('fullscreenBtn'), help: $('helpBtn'),
-        mute: $('muteBtn'), sumOnline: $('sumOnline'), sumOffline: $('sumOffline'),
+        mute: $('muteBtn'), sumOnline: $('sumOnline'), sumOffline: $('sumOffline'), sumPeople: $('sumPeople'),
         hallCount: $('hallCount'), lastChecked: $('lastChecked'),
         banner: $('connBanner'), bannerText: $('connBannerText'),
         petugasModal: $('petugasModal'), petugasForm: $('petugasForm'), petugasTitle: $('petugasTitle'),
@@ -35,6 +35,7 @@
         listHidden: storage.get('listHidden', isMobile),
         editingHallId: null,
         lastOkAt: null,
+        people: {},           // hallId -> jumlah orang (null = tidak ada data)
     };
 
     /* ---------- Util ---------- */
@@ -96,6 +97,49 @@
         } finally {
             setTimeout(pollStatus, document.hidden ? POLL_MS * 3 : POLL_MS);
         }
+    }
+
+    /* ---------- Hitung orang (AI) ---------- */
+
+    async function pollPeople() {
+        try {
+            const data = await api('people_api.php?action=status');
+            state.people = {};
+            (data.halls || []).forEach(h => { state.people[h.id] = h.count; });
+            const enabled = (data.halls || []).length > 0;
+            el.sumPeople.hidden = !enabled;
+            el.sumPeople.querySelector('strong').textContent = data.total == null ? '–' : data.total.toLocaleString('id-ID');
+            el.sumPeople.title = data.worker?.alive
+                ? 'Total orang terpantau kamera (AI) · klik untuk detail'
+                : 'Worker penghitung orang tidak berjalan · klik untuk detail';
+            renderPeople();
+        } catch {
+            /* error koneksi sudah ditangani pollStatus */
+        } finally {
+            setTimeout(pollPeople, document.hidden ? POLL_MS * 3 : POLL_MS);
+        }
+    }
+
+    function peopleBadge(id) {
+        if (!(id in state.people)) return '';
+        const n = state.people[id];
+        return `${icon('users')}<span class="num">${n == null ? '–' : n.toLocaleString('id-ID')}</span>`;
+    }
+
+    function renderPeople() {
+        el.stage.querySelectorAll('.cell').forEach(cell => {
+            const b = cell.querySelector('.cell-people');
+            const html = peopleBadge(Number(cell.dataset.hallId));
+            b.hidden = !html;
+            if (html) b.innerHTML = html;
+        });
+        el.cards.querySelectorAll('.card').forEach(card => {
+            const b = card.querySelector('.card-people');
+            const html = peopleBadge(Number(card.dataset.hallId));
+            b.hidden = !html;
+            if (html) b.innerHTML = html;
+        });
+        if (state.view !== 'all') renderSingleMeta(hallById(state.view));
     }
 
     async function reloadConfig() {
@@ -209,6 +253,7 @@
                     <span class="card-head">
                         <span class="dot unknown card-dot"></span>
                         <span class="card-name">${escapeHtml(hall.name)}</span>
+                        <span class="card-people" title="Orang terpantau (AI)" hidden></span>
                         ${i < 9 ? `<kbd class="card-key">${i + 1}</kbd>` : ''}
                     </span>
                     <span class="card-officer">${icon('user')}${hall.petugas ? escapeHtml(hall.petugas) : '<em>Belum ada petugas</em>'}</span>
@@ -315,7 +360,10 @@
                 <div class="cell-loading">Memuat stream…</div>
                 <div class="cell-top">
                     <span class="cell-name">${i < 9 ? `<kbd>${i + 1}</kbd>` : ''}${escapeHtml(hall.name)}</span>
-                    <span class="cell-badge"></span>
+                    <span class="cell-tags">
+                        <span class="cell-people" title="Orang terpantau (AI)" hidden></span>
+                        <span class="cell-badge"></span>
+                    </span>
                 </div>
                 <div class="cell-bottom">
                     <span class="cell-officer">${icon('user')}${hall.petugas ? escapeHtml(hall.petugas) : '<em>Belum ada petugas</em>'}</span>
@@ -331,6 +379,7 @@
         el.stage.appendChild(grid);
         layoutMosaic();
         renderStatus();
+        renderPeople();
     }
 
     function showHall(id, { keepRotate = false } = {}) {
@@ -359,6 +408,7 @@
         const hs = hallState(hall);
         el.sub.innerHTML = `
             <span class="status-chip" data-state="${hs}"><span class="dot ${hs === 'none' ? 'unknown' : hs}"></span>${escapeHtml(STATE_LABEL[hs])}</span>
+            ${hall.id in state.people ? `<a class="status-chip people-chip" href="people.php" title="Orang terpantau (AI)">${peopleBadge(hall.id)}<span>orang</span></a>` : ''}
             <span class="sub-officer">${icon('user')}${hall.petugas ? escapeHtml(hall.petugas) : '<em>Belum ada petugas</em>'}</span>
             <button type="button" class="link-btn" data-edit="${escapeHtml(hall.id)}" title="Ubah petugas jaga">${icon('edit')}Ubah</button>`;
     }
@@ -617,6 +667,7 @@
             showAll();
         }
         pollStatus();
+        pollPeople();
     }
 
     init();
